@@ -1,14 +1,18 @@
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, Children} from 'react';
+
+const mainStyle = {
+    backgroundColor: 'lightblue'
+}
 
 export const PomodoroNormal = () => {
-    const [time, setTime] = useState(0);
-    const [timef, setTimef] = useState(0);
+    const [timef, setTimef] = useState(0);//seconds*1000
+    const [time, setTime] = useState(0);//seconds
     const [isActive, setIsActive] = useState(false);
     const [duration, setDuration] = useState(0);
     const startTimeRef = useRef(null);
     const intervalRef = useRef(null);
-    const workTime = 25;
-    const breakTime = 5;
+    const workTime = 25;//minutes
+    const breakTime = 5;//minutes
     const [isWorking, setIsWorking] = useState(true);
     useEffect(() => {
         if (isActive){
@@ -58,13 +62,24 @@ export const PomodoroNormal = () => {
         setTime(0);
         setDuration(0);
     }
+    const displayTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+    const countDownTime = (time, span) => {
+        const leftTime = span*60 - time;
+        return leftTime;
+    }
     return (
-        <div>
-            <p>{time}</p>
-            <button onClick={handleStart}>Start</button>
-            <button onClick={handlePause}>Pause</button>
-            <button onClick={handleReset}>Reset</button>
-            <p>{isWorking ? "Work time" : "Break Time"}</p>
+        <div style={mainStyle}>
+            <p>{isWorking ? displayTime(countDownTime(time, workTime)) : displayTime(countDownTime(time, breakTime))}</p>
+            <p className='text-gray-800 box'>{isWorking ? "Work time" : "Break Time"}</p>
+            <button onClick={handleStart} className={OperateButtonStyle}>Start</button>
+            <button onClick={handlePause} className={OperateButtonStyle}>Pause</button>
+            <button onClick={handleReset} className={OperateButtonStyle}>Reset</button>
         </div>
     );
 }
+
+const OperateButtonStyle = 'm-1 p-1 bg-blue-300 text-black rounded-md hover:bg-blue-700 hover:text-white';

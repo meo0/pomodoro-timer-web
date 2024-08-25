@@ -6,7 +6,11 @@ import {CountUpTimerMoreAc} from './components/CountUpTimerMoreAc';
 import {PomodoroNormal} from './components/PomodoroNormal';
 
 function App() {
-  return <PomodoroNormal/>;
+  return (
+    <div className='main'>
+      <PomodoroNormal />
+    </div>
+  )
 }
 
 export default App;
