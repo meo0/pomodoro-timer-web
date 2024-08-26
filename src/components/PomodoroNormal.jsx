@@ -21,13 +21,11 @@ export const PomodoroNormal = () => {
                 setTimef(toTimef);
                 const elapsedTime = Math.floor(toTimef / 1000);
                 setTime(elapsedTime);
-                if (isWorking && elapsedTime >= workTime * 60){
-                    setIsWorking(false);
-                    initSession();
-                }
-                if (!isWorking && elapsedTime >= breakTime * 60){
-                    setIsWorking(true);
-                    initSession();
+                if (isWorking && (elapsedTime >= workTime * 60 || elapsedTime >= breakTime * 60) ){
+                    setTime(0);
+                    setDuration(0);
+                    setIsWorking(!isWorking);
+                    if (!autoNext) setIsActive(false);
                 }
             }, 100);
         }else {
@@ -39,7 +37,7 @@ export const PomodoroNormal = () => {
             //console.log('cleanup');
         }
 
-    },[isActive, duration, isWorking]);
+    },[isActive, duration, isWorking, autoNext]);
    const handleStart = () => {
     if (!isActive){
         setIsActive(true);  
@@ -59,6 +57,8 @@ export const PomodoroNormal = () => {
     const initSession = () => {
         setTime(0);
         setDuration(0);
+        setIsWorking(!isWorking);
+        if (!autoNext) setIsActive(false);
     }
     const displayTime = (time) => {
         const minutes = Math.floor(time / 60);
