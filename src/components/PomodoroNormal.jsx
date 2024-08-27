@@ -17,6 +17,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import useSound from 'use-sound';
+import OoruriSound from '../sounds/オオルリのさえずり1_01.mp3'
 
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -32,6 +33,7 @@ export const PomodoroNormal = () => {
     const [isWorking, setIsWorking] = useState(true);
     const [autoNext, setAutoNext] = useState(true);
     const [open, setOpen] = useState(false);
+    const [ooruriSound] = useSound(OoruriSound);
     useEffect(() => {
         if (isActive){
             startTimeRef.current = new Date();
@@ -47,6 +49,7 @@ export const PomodoroNormal = () => {
                     setDuration(0);
                     setIsWorking(!isWorking);
                     if (autoNext === false) setIsActive(false);
+                    ooruriSound();
                 }
             }, 100);
         }else {
