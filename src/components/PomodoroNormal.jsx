@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import PropTypes from 'prop-types';
 import Switch from '@mui/material/Switch';
 import {css} from '@emotion/react';
 import {useState, useRef, useEffect} from 'react';
@@ -102,27 +103,17 @@ export const PomodoroNormal = () => {
     }
     const settingStyle = css`
             padding: 3px;
-            background-color: gray;
             margin:1px 1px 1px auto;
+            &:hover {
+                background-color: gray;
+            }
             `;
     return (
         <div>
-        <div css={css`display:flex;`}>
-        <IconButton css={settingStyle} size='large' aria-label='setting'><SettingsIcon/></IconButton>
+        <div css={css`display:flex; overflow: hidden;`}>
+            <IconButton css={settingStyle} size='large' aria-label='setting' onClick={handleClickOpen}><SettingsIcon/></IconButton>
         </div>
         <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
-            <div
-                aria-hidden="true"
-                className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]"
-            >
-                <div
-                style={{
-                    clipPath:
-                    'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-                }}
-                className="relative left-1/2 -z-10 aspect-[1155/678] w-[36.125rem] max-w-none -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-40rem)] sm:w-[72.1875rem]"
-                />
-            </div>
             <div className='mx-auto max-w-2xl text-center'>
             <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl p-4'>Pomodoro Timer</h2>
             <p className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>{isWorking ? displayTime(countDownTime(time, workTime)) : displayTime(countDownTime(time, breakTime))}</p>
@@ -132,13 +123,35 @@ export const PomodoroNormal = () => {
             <button onClick={handleToggleStartPause} className={OperateButton}>{isActive ? 'Pause' : 'Start'}</button>
             <button onClick={handleReset} className={OperateButton}>Reset</button>
             </div>
-            <div className="flex items-center">
-            <p className='px-4'>Auto Start Next Timer </p>
-            <Switch checked={autoNext} onChange={handleToggleAutoNext} inputProps={{ 'aria-label': 'controlled' }}/>
-            </div>
         </div>
+            <SettingDialog onClose={handleClose} autoNext={autoNext} toggleAutoNext={handleToggleAutoNext} open={open} />
         </div>
     );
 }
 
 const OperateButton = 'm-1 p-1 bg-blue-300 text-black rounded-md hover:bg-blue-700 hover:text-white font-bold';
+
+SettingDialog.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  autoNext: PropTypes.bool.isRequired,
+  toggleAutoNext: PropTypes.func.isRequired,
+};
+function SettingDialog(props) {
+    const {onClose, autoNext, toggleAutoNext, open} = props;
+    const handleClose = () => {
+        onClose(autoNext);
+    }
+    return (
+        <Dialog onClose={handleClose} open={open}>
+            <DialogTitle>Settings</DialogTitle>
+            <div className="flex items-center">
+            <p className='px-4'>Auto Start Next Timer </p>
+            <Switch checked={autoNext} onChange={toggleAutoNext} inputProps={{ 'aria-label': 'controlled' }}/>
+            </div>
+            <DialogActions>
+                <Button onClick={onClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
