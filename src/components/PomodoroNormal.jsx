@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import PropTypes from 'prop-types';
+import CircularProgress from '@mui/material/CircularProgress';
 import Switch from '@mui/material/Switch';
 import {css} from '@emotion/react';
 import {useState, useRef, useEffect, forwardRef} from 'react';
@@ -25,7 +26,7 @@ import {
   Unstable_NumberInput as BaseNumberInput,
   numberInputClasses,
 } from '@mui/base/Unstable_NumberInput';
-import { styled } from '@mui/system';
+import { bgcolor, display, styled } from '@mui/system';
 
 export const PomodoroNormal = () => {
     const [timef, setTimef] = useState(0);//seconds*1000
@@ -119,6 +120,9 @@ export const PomodoroNormal = () => {
     const handleClose = () => {
         setOpen(false);
     }
+    const progress = (time, span) => {
+        return 100 - ((time / (span*60)) * 100);
+    }
     const settingStyle = css`
             padding: 3px;
             margin:1px 1px 1px auto;
@@ -127,23 +131,33 @@ export const PomodoroNormal = () => {
             }
             `;
     return (
-        <div>
+        <Box sx={{bgcolor: '#84b9cb'}}>{/*heightは後々実装していく*/}
         <div css={css`display:flex; overflow: hidden;`}>
+            <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl p-4'>Pomodoro Timer</h2>
             <IconButton css={settingStyle} size='large' aria-label='setting' onClick={handleClickOpen}><SettingsIcon/></IconButton>
         </div>
-        <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
-            <div className='mx-auto max-w-2xl text-center'>
-            <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl p-4'>Pomodoro Timer</h2>
-            <p className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>{isWorking ? displayTime(countDownTime(time, workTime)) : (sycleCount>=lognBreakTime-1 ? displayTime(countDownTime(time,lognBreakTime)) : displayTime(countDownTime(time, breakTime)))}</p>
-            <p className='text-gray-800 box'>{isWorking ? "Work time" : "Break Time"}</p>
-            </div>
+        <div >
+            <Box sx={{display:'flex', justifyContent:'center'}}>
+            <Box sx={{position:'relative', display:'inline-flex',}}>
+              <Box sx={{}}>
+                <CircularProgress variant='determinate' value={isWorking ? progress(time, workTime) : (sycleCount>=lognBreakTime-1 ? progress(time, lognBreakTime) : progress(time, breakTime))} size={400} sx={{display:'flex', color:'#9685cc'}}/>
+              </Box>
+              <Box sx={{top:0, left:0, bottom:0, right:0, position:'absolute', display:'flex', alignContent:'center', justifyContent:'center', flexDirection:'column'}}>
+                <Box sx={{display:'flex', justifyContent:'center'}}>
+                  <Box>
+                <Box sx={{fontSize:100, color:'text.secondary'}}>{isWorking ? displayTime(countDownTime(time, workTime)) : (sycleCount>=lognBreakTime-1 ? displayTime(countDownTime(time,lognBreakTime)) : displayTime(countDownTime(time, breakTime)))}</Box>
+                <Box sx={{display:'flex', justifyContent:'center', fontWeight:'bold', fontSize:21}} className='text-gray-800 box'>{isWorking ? "Focus time" : (sycleCount=>lognBreakInterval-1?"long Break Time":"Break Time")}</Box></Box>
+                </Box>
+              </Box>
+            </Box>
+            </Box>
             <div className='text-center p-4'>
             <button onClick={handleToggleStartPause} className={OperateButton}>{isActive ? 'Pause' : 'Start'}</button>
             <button onClick={handleReset} className={OperateButton}>Reset</button>
             </div> 
-                      </div>
+            </div>
             <SettingDialog onClose={handleClose} autoNext={autoNext} toggleAutoNext={handleToggleAutoNext} open={open} workTime={workTime} setWorkTime={setWorkTime} breakTime={breakTime} setBreakTime={setBreakTime} lognBreakTime={lognBreakTime} setLognBreakTime={setLognBreakTime} lognBreakInterval={lognBreakInterval} setLognBreakInterval={setLognBreakInterval}/>
-        </div>
+        </Box>
     );
 }
 
@@ -178,7 +192,7 @@ function SettingDialog(props) {
             <hr />
             <Box sx={{mx: 2}}>
                 <p>Work Time</p>
-                <NumberInput placeholder="Work Time" value={workTime} onChange={(event, val) => setWorkTime(val)} />
+                <NumberInput placeholder="Forcus Time" value={workTime} onChange={(event, val) => setWorkTime(val)} />
             </Box> 
             <Box sx={{my:1}}>
             <Box sx={{mx:2}}>
