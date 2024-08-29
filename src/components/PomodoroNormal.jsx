@@ -16,6 +16,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Slider from '@mui/material/Slider';
 import useSound from 'use-sound';
 import OoruriSound from '../sounds/オオルリのさえずり1_01.mp3'
 
@@ -35,6 +36,9 @@ export const PomodoroNormal = () => {
     const intervalRef = useRef(null);
     const [workTime, setWorkTime] = useState(25);//minutes
     const [breakTime, setBreakTime] = useState(5);//minutes
+    const [lognBreakTime, setLognBreakTime] = useState(15);//minutes
+    const [lognBreakInterval, setLognBreakInterval] = useState(4);//after n-1 break time 
+    const [sycleCount, setSycleCount] = useState(0);
     const [isWorking, setIsWorking] = useState(true);
     const [autoNext, setAutoNext] = useState(true);
     const [open, setOpen] = useState(false);
@@ -48,13 +52,18 @@ export const PomodoroNormal = () => {
                 setTimef(toTimef);
                 const elapsedTime = Math.floor(toTimef / 1000);
                 setTime(elapsedTime);
-                if (isWorking ? elapsedTime >= workTime * 60 : elapsedTime >= breakTime * 60){
+                if (isWorking ? elapsedTime >= workTime * 60 : (sycleCount >= lognBreakInterval - 1 ? elapsedTime >= lognBreakTime : elapsedTime >= breakTime * 60)){
                     setTimef(0);
                     setTime(0);
                     setDuration(0);
                     setIsWorking(!isWorking);
                     if (autoNext === false) setIsActive(false);
                     ooruriSound();
+                    if(sycleCount >= lognBreakInterval - 1){
+                      setSycleCount(0);
+                    }else{
+                      setSycleCount(sycleCount + 1);
+                    }
                 }
             }, 100);
         }else {
@@ -125,15 +134,15 @@ export const PomodoroNormal = () => {
         <div className="isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
             <div className='mx-auto max-w-2xl text-center'>
             <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl p-4'>Pomodoro Timer</h2>
-            <p className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>{isWorking ? displayTime(countDownTime(time, workTime)) : displayTime(countDownTime(time, breakTime))}</p>
+            <p className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl'>{isWorking ? displayTime(countDownTime(time, workTime)) : (sycleCount>=lognBreakTime-1 ? displayTime(countDownTime(time,lognBreakTime)) : displayTime(countDownTime(time, breakTime)))}</p>
             <p className='text-gray-800 box'>{isWorking ? "Work time" : "Break Time"}</p>
             </div>
             <div className='text-center p-4'>
             <button onClick={handleToggleStartPause} className={OperateButton}>{isActive ? 'Pause' : 'Start'}</button>
             <button onClick={handleReset} className={OperateButton}>Reset</button>
-            </div>
-        </div>
-            <SettingDialog onClose={handleClose} autoNext={autoNext} toggleAutoNext={handleToggleAutoNext} open={open} workTime={workTime} setWorkTime={setWorkTime} breakTime={breakTime} setBreakTime={setBreakTime}/>
+            </div> 
+                      </div>
+            <SettingDialog onClose={handleClose} autoNext={autoNext} toggleAutoNext={handleToggleAutoNext} open={open} workTime={workTime} setWorkTime={setWorkTime} breakTime={breakTime} setBreakTime={setBreakTime} lognBreakTime={lognBreakTime} setLognBreakTime={setLognBreakTime} lognBreakInterval={lognBreakInterval} setLognBreakInterval={setLognBreakInterval}/>
         </div>
     );
 }
@@ -148,29 +157,52 @@ SettingDialog.propTypes = {
   workTime: PropTypes.number.isRequired,
   setWorkTime: PropTypes.func.isRequired,
   breakTime: PropTypes.number.isRequired,
-  breakTime: PropTypes.func.isRequired,
+  setBreakTime: PropTypes.func.isRequired,
+  lognBreakTime: PropTypes.number.isRequired,
+  setLognBreakTime: PropTypes.func.isRequired,
+  lognBreakInterval: PropTypes.number.isRequired,
+  setLognBreakInterval: PropTypes.func.isRequired,
 };
 function SettingDialog(props) {
-    const {onClose, autoNext, toggleAutoNext, open, workTime, setWorkTime, breakTime, setBreakTime} = props;
+    const {onClose, autoNext, toggleAutoNext, open, workTime, setWorkTime, breakTime, setBreakTime, lognBreakTime, setLognBreakTime, lognBreakInterval, setLognBreakInterval} = props;
     const handleClose = () => {
         onClose(autoNext);
     }
     return (
         <Dialog onClose={handleClose} open={open} >
             <DialogTitle>Settings</DialogTitle>
-            <div className="flex items-center">
+            <Box className="flex items-center" sx={{}}>
             <div className='px-4'>Auto Start Next Timer </div>
             <Switch checked={autoNext} onChange={toggleAutoNext} inputProps={{ 'aria-label': 'controlled' }}/>
-            </div>
+            </Box>
+            <hr />
             <Box sx={{mx: 2}}>
                 <p>Work Time</p>
                 <NumberInput placeholder="Work Time" value={workTime} onChange={(event, val) => setWorkTime(val)} />
             </Box> 
+            <Box sx={{my:1}}>
             <Box sx={{mx:2}}>
                 <p>Break Time</p>
                 <NumberInput placeholder="Break Time" value={breakTime} onChange={(event, val) => setBreakTime(val)} />
             </Box>
-
+            <Box sx={{mx:2}}>
+              <p>Long Break Time</p>
+                <NumberInput placeholder="Long Break Time" value={lognBreakTime} onChange={(event, val) => setLognBreakTime(val)} />
+            </Box>
+            </Box>
+            <Box sx={{mx:2}}>
+              <p>Long Break interval: {lognBreakInterval}</p>
+            <Slider
+              aria-label="Long break interval"
+              defaultValue={4}
+              value={lognBreakInterval}
+              onChange={(event, val) =>setLognBreakInterval(val)}
+              min={2}
+              max={10}
+              valueLabelDisplay='auto'
+              sx={{mx:-1}}
+            />
+            </Box>
             <DialogActions>
                 <Button onClick={onClose}>Close</Button>
             </DialogActions>
@@ -246,10 +278,6 @@ const StyledInputRoot = styled('div')(
   &:hover {
     border-color: ${blue[400]};
   }
-
-  // firefox
-  &:focus-visible {
-    outline: 0;
   }
 `,
 );
