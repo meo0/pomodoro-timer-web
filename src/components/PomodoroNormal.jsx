@@ -134,7 +134,7 @@ export const PomodoroNormal = () => {
         <Box sx={{bgcolor: '#84b9cb'}}>{/*heightは後々実装していく*/}
         <div css={css`display:flex; overflow: hidden;`}>
             <h2 className='text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl p-4'>Pomodoro Timer</h2>
-            <IconButton css={settingStyle} size='large' aria-label='setting' onClick={handleClickOpen}><SettingsIcon/></IconButton>
+            <IconButton sx={{height:'40px', width:'40px', m:1}} css={settingStyle} size='large' aria-label='setting' onClick={handleClickOpen}><SettingsIcon/></IconButton>
         </div>
         <div >
             <Box sx={{display:'flex', justifyContent:'center'}}>
